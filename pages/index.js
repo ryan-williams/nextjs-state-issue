@@ -11,9 +11,9 @@ export default function Home() {
   return (
     <div>{
       ["A", "B", "C", "D", "E"].map(v => {
-        const disabled = v === value
-        console.log(`v: ${v}, value: ${value}, disabled: ${disabled}`)
-        return <input key={v} type={"button"} value={v} disabled={disabled} onClick={() => setValue(v)} />
+        const active = v === value
+        console.log(`v: ${v}, value: ${value}, active: ${active}`)
+        return <input key={v} type={"button"} value={v} style={{ fontWeight: active ? "bold" : "normal" }} onClick={() => setValue(v)} />
       })
     }</div>
   )
