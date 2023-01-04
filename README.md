@@ -2,11 +2,16 @@
 Examining a bug(?) involving populating React state from URL query params
 
 - [Repro](#repro)
+  - [Boot `next dev` server ✅](#boot)
+  - [View 127.0.0.1:3000 ✅](#view-default)
+  - [Now try 127.0.0.1:3000?v=D ❌](#view-D)
+  - [Click "A" ❌](#view-A)
 - [Discussion](#discussion)
+  - [Issue is not specific to the `disabled` attribute](#bold)
 
 ## Repro <a id="repro"></a>
 
-### Boot `next dev` server ✅
+### Boot `next dev` server ✅ <a id="boot"></a>
 ```bash
 next dev
 ```
@@ -36,7 +41,7 @@ export default function Home() {
 }
 ```
 
-### View [`index.js`](./pages/index.js) ✅
+### View [127.0.0.1:3000](http://127.0.0.1:3000) ✅ <a id="view-default"></a>
 
 ```bash
 open http://127.0.0.1:3000
@@ -45,17 +50,19 @@ Page renders without error, "C" is "active" (disabled) by default:
 
 ![](./screenshots/C.png)
 
-### Now try [127.0.0.1:3000?v=D](http://127.0.0.1:3000?v=D) ❌
+So far, so good.
+
+### Now try [127.0.0.1:3000?v=D](http://127.0.0.1:3000?v=D) ❌ <a id="view-D"></a>
 
 ![](./screenshots/D.png)
 
-A couple problems occur:
+Several problems are visible:
 - "C" is disabled (instead of "D")
 - `console.log`s imply that "D" should be disabled, and "C" should not be
 - Clicking "D" has no effect (something thinks it's already disabled)
 - There's a console error about client and server "disabled" attributes not agreeing
 
-### Click "A" ❌
+### Click "A" ❌ <a id="view-A"></a>
 
 ![](./screenshots/AC.png)
 
@@ -65,7 +72,7 @@ A couple problems occur:
 
 ## Discussion <a id="discussion"></a>
 
-### Issue is not specific to the `disabled` attribute
+### Issue is not specific to the `disabled` attribute <a id="bold"></a>
 At first I thought this might have to do with the `disabled` attribute being a boolean whose value is inferred from the presence or absence of the attribute (i.e. `<input type="button" [disabled] />` as opposed to `<input type="button" disabled="[yes|no]" />`).
 
 However, the issue occurs if the "active" button is styled with e.g. `font-weight: [bold|normal]` instead of toggling `disabled` (see [`bold` branch](https://github.com/ryan-williams/nextjs-state-issue/blob/bold/pages/index.js#L14-L16)):
