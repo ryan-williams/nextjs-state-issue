@@ -1,7 +1,12 @@
 # nextjs-state-issue
 Examining a bug(?) involving populating React state from URL query params
 
-## Boot `next dev` server ✅
+- [Repro](#repro)
+- [Discussion](#discussion)
+
+## Repro <a id="repro"></a>
+
+### Boot `next dev` server ✅
 ```bash
 next dev
 ```
@@ -31,18 +36,18 @@ export default function Home() {
 }
 ```
 
-## View [`index.js`](./pages/index.js) ✅
+### View [`index.js`](./pages/index.js) ✅
 
 ```bash
 open http://127.0.0.1:3000
 ```
 Page renders without error, "C" is "active" (disabled) by default:
 
-![](./C.png)
+![](./screenshots/C.png)
 
-## Now try [127.0.0.1:3000?v=D](http://127.0.0.1:3000?v=D) ❌
+### Now try [127.0.0.1:3000?v=D](http://127.0.0.1:3000?v=D) ❌
 
-![](./D.png)
+![](./screenshots/D.png)
 
 A couple problems occur:
 - "C" is disabled (instead of "D")
@@ -50,10 +55,34 @@ A couple problems occur:
 - Clicking "D" has no effect (something thinks it's already disabled)
 - There's a console error about client and server "disabled" attributes not agreeing
 
-## Click "A" ❌
+### Click "A" ❌
 
-![](./AC.png)
+![](./screenshots/AC.png)
 
 - "A" and "C" are both disabled
   - There's no way to un-disable "C"; it is stuck due to having been default during server render
 - `console.log`s imply only "A" should be disabled
+
+## Discussion <a id="discussion"></a>
+
+### Issue is not specific to the `disabled` attribute
+At first I thought this might have to do with the `disabled` attribute being a boolean whose value is inferred from the presence or absence of the attribute (i.e. `<input type="button" [disabled] />` as opposed to `<input type="button" disabled="[yes|no]" />`).
+
+However, the issue occurs if the "active" button is styled with e.g. `font-weight: [bold|normal]` instead of toggling `disabled` (see [`bold` branch](https://github.com/ryan-williams/nextjs-state-issue/blob/bold/pages/index.js):
+
+```diff
+-        const disabled = v === value
+-        console.log(`v: ${v}, value: ${value}, disabled: ${disabled}`)
+-        return <input key={v} type={"button"} value={v} disabled={disabled} onClick={() => setVal>
++        const active = v === value
++        console.log(`v: ${v}, value: ${value}, active: ${active}`)
++        return <input key={v} type={"button"} value={v} style={{ fontWeight: active ? "bold" : "n>
+```
+
+![](./screenshots/AC-bold.png)
+
+- Page loads with "C" bolded, though "D" is supposed to be
+- Clicking "A" results in "A" and "C" both bolded, though only "A" is supposed to be
+- One difference from the `disabled` example is that you can click "C" here, and it resets the page to a consistent state:
+  - "C" is understood to be the only "active" button (in the UI as well as `console.log`s)
+  - Subsequent button clicks work as expected
